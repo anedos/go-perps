@@ -185,6 +185,7 @@ Expected commands:
 
 ```sh
 go test ./...
+GO_PERPS_TEST_DB=1 GO_PERPS_LOG_QUERIES=1  go test ./internal/storage -run '^TestWriterWritesToTimescaleDB$' -count=1 -v
 go vet ./...
 go run ./cmd/api
 go run ./cmd/reader
