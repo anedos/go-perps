@@ -38,7 +38,7 @@ func New(config Config) (*zap.Logger, error) {
 		return logger, nil
 	}
 
-	return logger.With(zap.String("service", config.Service)), nil
+	return logger.With(zap.String("service", config.Service), zap.Bool("development", config.Development)), nil
 }
 
 // MustNew creates a Zap logger and panics if construction fails.

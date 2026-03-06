@@ -3,41 +3,20 @@
 Go Perps aggregates perpetual futures order book data across exchanges and exposes
 depth and slippage analytics through a REST API.
 
-The project is intentionally small and explicit. It is meant to be a practical
-Go codebase for learning market data ingestion, exchange websocket protocols,
-TimescaleDB storage, concurrency, testing, and REST API design.
+I've started this project as a way of learning Perps and improving my Go hands-on experience with logging,
+databases and first-time usage of timescaledb.
 
 ## Architecture
 
-Go Perps is split into two long-running commands:
+I have split the project into 2 separate commands:
 
-- `reader`: connects to exchange websocket feeds, normalizes order books,
-  computes derived metrics, and writes throttled snapshots to TimescaleDB.
-- `api`: serves historical depth, slippage, stats, and metadata from TimescaleDB.
+- `reader`: connects to exchange websockets, normalizes and sorts order books,
+  computes metrics, and writes (throttled) snapshots to TimescaleDB.
+- `api`: a read-only wrapper api that serves historical depth, slippage, stats, and metadata from TimescaleDB.
 
-Both commands share common domain types, configuration, database access, and
-calculation logic.
+Both commands share common types, configuration and database access
 
-```text
-Exchange WebSockets
-        |
-        v
- exchange adapters
-        |
-        v
- normalized order books
-        |
-        v
- processor: spread, depth, slippage
-        |
-        v
- throttled writer
-        |
-        v
- TimescaleDB <---- REST API
-```
-
-## Project Layout
+## Layout
 
 The intended package layout is:
 
@@ -46,9 +25,9 @@ cmd/
   api/                    # REST API process
   reader/                 # websocket ingestion process
 internal/
-  api/                    # route handlers, request parsing, response DTOs
-  config/                 # environment and typed runtime configuration
-  db/                     # SQL queries, connection pool, migrations
+  api/                    # route handlers, request parsing
+  config/                 # env configuration
+  db/                     # SQL queries for read, writes, updates, connection pool, migrations
   exchange/               # exchange reader interface and implementations
     extended/
     hyperliquid/
@@ -60,27 +39,24 @@ internal/
 migrations/               # TimescaleDB schema migrations
 ```
 
-Protocol-specific websocket code stays inside exchange packages. The rest of
+Exchange-specific websocket code stays inside exchange packages. The rest of
 the system works with normalized order book types.
 
 ## Core Components
 
 ### Domain Model
 
-The core model is intentionally compact:
+The model is pretty small:
 
-- `Exchange`: supported exchange identifiers.
-- `Market`: configured market symbol and exchange-specific symbol mapping.
-- `PriceLevel`: price and quantity using decimal arithmetic.
-- `OrderBook`: normalized snapshot with exchange, symbol, timestamp, bids, and asks.
-- `ProcessedOrderBook`: spread, depth, and per-size slippage derived from a snapshot.
-
-Prices, quantities, and notionals should use decimal arithmetic. Floating point
-types are acceptable for rough telemetry, but not for order book calculations.
+- `Exchange`: exchange identifiers.
+- `Market`: manages the exchange-specific symbol
+- `PriceLevel`: simple price and quantity struct using decimal arithmetic
+- `OrderBook`: normalized snapshot with exchange, symbol, timestamp, bids, and asks
+- `ProcessedOrderBook`: spread, depth, and per-size slippage derived from a snapshot
 
 ### Exchange Readers
 
-Each exchange reader owns protocol-specific behavior:
+Each exchange reader owns org-specific behavior:
 
 - websocket URL and subscription messages
 - symbol formatting
@@ -181,7 +157,14 @@ Expected local services:
 - Go 1.24 or newer
 - PostgreSQL with TimescaleDB
 
-Expected commands:
+Env variables:
+- GO_PERPS_TEST_DB, runs integration tests against a local PG db
+- GO_PERPS_LOG_QUERIES, log PG queries in tests or runtime mode
+- GO_PERPS_API_ADDR, port number the API runs on
+- GO_PERPS_MARKETS, a comma-separated list of market symbols, e.g., "ETH-USD,BTC-USD"
+- GO_PERPS_ENV, "production" or "dev", influences how logs are marshalled and rendered 
+
+- Expected commands:
 
 ```sh
 go test ./...

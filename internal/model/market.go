@@ -1,11 +1,10 @@
 package model
 
-// Market describes a normalized trading market and optional exchange-specific
-// symbol mappings.
+// Market describes a normalized trading market and optional exchange-specific symbol mappings.
 type Market struct {
-	// Symbol is the normalized market identifier used by Go Perps.
+	// Symbol is the normalized market identifier
 	Symbol string
-	// ExchangeSymbols maps exchanges to the symbol expected by that exchange.
+	// ExchangeSymbols maps exchanges to the symbol expected by that exchange
 	ExchangeSymbols map[Exchange]string
 }
 

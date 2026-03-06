@@ -14,7 +14,7 @@ func TestZapQueryTracerLogsQuery(t *testing.T) {
 	t.Parallel()
 
 	core, logs := observer.New(zap.InfoLevel)
-	tracer := newZapQueryTracer(zap.New(core), true)
+	tracer := newZapQueryTracer(zap.New(core))
 
 	ctx := tracer.TraceQueryStart(context.Background(), nil, pgx.TraceQueryStartData{
 		SQL:  "SELECT $1::int",
@@ -37,24 +37,5 @@ func TestZapQueryTracerLogsQuery(t *testing.T) {
 	}
 	if _, ok := entry.ContextMap()["args"]; !ok {
 		t.Fatal("expected args field")
-	}
-}
-
-func TestZapQueryTracerCanOmitArgs(t *testing.T) {
-	t.Parallel()
-
-	core, logs := observer.New(zap.InfoLevel)
-	tracer := newZapQueryTracer(zap.New(core), false)
-
-	ctx := tracer.TraceQueryStart(context.Background(), nil, pgx.TraceQueryStartData{
-		SQL:  "SELECT $1::int",
-		Args: []any{1},
-	})
-	tracer.TraceQueryEnd(ctx, nil, pgx.TraceQueryEndData{
-		CommandTag: pgconn.NewCommandTag("SELECT 1"),
-	})
-
-	if _, ok := logs.All()[0].ContextMap()["args"]; ok {
-		t.Fatal("did not expect args field")
 	}
 }
