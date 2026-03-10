@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/anedos/go-perps/internal/api"
+	"github.com/anedos/go-perps/internal/db"
 	"github.com/anedos/go-perps/internal/logging"
 	"github.com/anedos/go-perps/internal/model"
 	"go.uber.org/zap"
@@ -29,16 +30,22 @@ func main() {
 }
 
 func run(logger *zap.Logger) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	store, cleanup, err := configuredStore(ctx, logger)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
 	server := &http.Server{
 		Addr:         apiAddress(),
-		Handler:      api.New(api.Config{Markets: configuredMarkets()}, logger),
+		Handler:      api.New(api.Config{Markets: configuredMarkets()}, logger, store),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  30 * time.Second,
 	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 
 	go func() {
 		<-ctx.Done()
@@ -52,12 +59,30 @@ func run(logger *zap.Logger) error {
 	}()
 
 	logger.Info("starting api server", zap.String("addr", server.Addr))
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		return nil
 	}
 
 	return err
+}
+
+func configuredStore(ctx context.Context, logger *zap.Logger) (api.Store, func(), error) {
+	databaseURL := os.Getenv("GO_PERPS_DATABASE_URL")
+	if databaseURL == "" {
+		return nil, func() {}, nil
+	}
+
+	pool, err := db.Connect(ctx, db.Config{
+		URL:         databaseURL,
+		MaxConns:    5,
+		QueryLogger: logger,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return api.NewDBStore(pool), pool.Close, nil
 }
 
 func apiAddress() string {

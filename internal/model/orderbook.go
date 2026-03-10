@@ -24,7 +24,7 @@ type OrderBook struct {
 	Asks []PriceLevel
 }
 
-// SideMetric stores one metric value for both bid and ask sides.
+// SideMetric stores one metric value for both bid and ask sides
 type SideMetric struct {
 	Bid decimal.Decimal
 	Ask decimal.Decimal
@@ -39,12 +39,12 @@ type SlippageLevel struct {
 type ProcessedOrderBook struct {
 	Exchange Exchange
 	Symbol   string
-	// Timestamp is copied from the source order book snapshot.
+	// Timestamp is copied from the source order book snapshot
 	Timestamp time.Time
-	// Spread is best ask minus best bid.
+	// Spread is best ask minus best bid
 	Spread decimal.Decimal
-	// Depth is bid and ask quantity inside the configured mid-price band.
+	// Depth is bid and ask quantity inside the configured mid-price band
 	Depth SideMetric
-	// Slippage stores price impact at each configured notional size.
+	// Slippage stores price impact at each configured notional size
 	Slippage []SlippageLevel
 }

@@ -158,6 +158,7 @@ Expected local services:
 - PostgreSQL with TimescaleDB
 
 Env variables:
+- GO_PERPS_DATABASE_URL, the pg url to be used during runtime
 - GO_PERPS_TEST_DB, runs integration tests against a local PG db
 - GO_PERPS_LOG_QUERIES, log PG queries in tests or runtime mode
 - GO_PERPS_API_ADDR, port number the API runs on

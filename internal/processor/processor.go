@@ -6,10 +6,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// midPriceDepthBand is the price range around mid-price used for depth calculations.
+// midPriceDepthBand is used to calculate the price range which is then used for the liquidity depth calculations
 const midPriceDepthBand = 0.5
 
-// Processor converts normalized order book snapshots into derived metrics.
+// Processor converts normalized order book snapshots into derived metrics
 type Processor struct {
 	slippageLevels []decimal.Decimal
 }
@@ -23,7 +23,7 @@ func New(slippageLevels []decimal.Decimal) *Processor {
 	}
 }
 
-// Process calculates spread, depth, and slippage for one order book snapshot.
+// Process calculates spread, depth, and slippage for one order book snapshot
 func (p *Processor) Process(orderBook model.OrderBook) model.ProcessedOrderBook {
 	litter.Dump(orderBook)
 
@@ -56,7 +56,7 @@ func MidPrice(orderBook model.OrderBook) decimal.Decimal {
 	return orderBook.Bids[0].Price.Add(orderBook.Asks[0].Price).Div(decimal.NewFromInt(2))
 }
 
-// Depth sums bid and ask quantities inside the configured mid-price band.
+// Depth sums bid and ask quantities inside the configured mid-price band
 func Depth(orderBook model.OrderBook) model.SideMetric {
 	midPrice := MidPrice(orderBook)
 	if midPrice.IsZero() {
@@ -91,7 +91,7 @@ func Depth(orderBook model.OrderBook) model.SideMetric {
 	}
 }
 
-// SlippageLevels calculates slippage for each configured quote-notional size.
+// SlippageLevels calculates slippage for each configured quote-notional size
 func SlippageLevels(orderBook model.OrderBook, levels []decimal.Decimal) []model.SlippageLevel {
 	midPrice := MidPrice(orderBook)
 	result := make([]model.SlippageLevel, 0, len(levels))
@@ -128,7 +128,7 @@ func ExecutionPrice(levels []model.PriceLevel, notionalSize decimal.Decimal) dec
 }
 
 // Slippage returns absolute price impact versus midPrice. It returns zero when
-// either input is zero.
+// either input is zero
 func Slippage(executionPrice, midPrice decimal.Decimal) decimal.Decimal {
 	if executionPrice.IsZero() || midPrice.IsZero() {
 		return decimal.Zero
