@@ -3,6 +3,7 @@ module github.com/anedos/go-perps
 go 1.26
 
 require (
+	github.com/gorilla/websocket v1.5.3
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/pgx-contrib/pgxtrace v0.0.0-20260706020455-acd31a98c2d6
 	github.com/sanity-io/litter v1.5.8
