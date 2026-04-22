@@ -158,12 +158,12 @@ Expected local services:
 - PostgreSQL with TimescaleDB
 
 Env variables:
-- GO_PERPS_DATABASE_URL, the pg url to be used during runtime
-- GO_PERPS_TEST_DB, runs integration tests against a local PG db
-- GO_PERPS_LOG_QUERIES, log PG queries in tests or runtime mode
-- GO_PERPS_API_ADDR, port number the API runs on
-- GO_PERPS_MARKETS, a comma-separated list of market symbols, e.g., "ETH-USD,BTC-USD"
-- GO_PERPS_ENV, "production" or "dev", influences how logs are marshalled and rendered 
+- `GO_PERPS_DATABASE_URL`, the pg url to be used during runtime
+- `GO_PERPS_TEST_DB`, runs integration tests against a local PG db
+- `GO_PERPS_LOG_QUERIES`, log PG queries in tests or runtime mode
+- `GO_PERPS_API_ADDR`, port number the API runs on
+- `GO_PERPS_MARKETS`, a comma-separated list of market symbols, e.g., "ETH-USD,BTC-USD"
+- `GO_PERPS_ENV`, "production" or "dev", influences how logs are marshalled and rendered 
 
 - Expected commands:
 
@@ -171,6 +171,6 @@ Env variables:
 go test ./...
 GO_PERPS_TEST_DB=1 GO_PERPS_LOG_QUERIES=1  go test ./internal/storage -run '^TestWriterWritesToTimescaleDB$' -count=1 -v
 go vet ./...
-go run ./cmd/api
-go run ./cmd/reader
+GO_PERPS_DATABASE_URL=postgresql://<username>:<password>@<hostname>:<port> go run ./cmd/api
+O_PERPS_DATABASE_URL=postgresql://<username>:<password>@<hostname>:<port> go run ./cmd/reader
 ```
