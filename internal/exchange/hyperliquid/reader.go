@@ -48,15 +48,17 @@ func (d gorillaDialer) DialContext(
 type Reader struct {
 	dialer websocketDialer
 
-	mu           sync.RWMutex
-	conn         websocketConn
+	mu   sync.RWMutex
+	conn websocketConn
+	// symbolByCoin is the inverse of ExchangeSymbols, it maps the exchange-specific asset (coin) to the normalised
+	// symbol we use here
 	symbolByCoin map[string]string
 
 	outputCh chan model.OrderBook
 	errorCh  chan error
 }
 
-// New creates a Hyperliquid reader using the default websocket dialer.
+// New creates a Hyperliquid reader using the default websocket dialer
 func New() *Reader {
 	return newWithDialer(gorillaDialer{dialer: websocket.DefaultDialer})
 }
@@ -70,7 +72,7 @@ func newWithDialer(dialer websocketDialer) *Reader {
 	}
 }
 
-// Connect opens the websocket, subscribes to markets, and starts the read loop.
+// Connect opens the websocket, subscribes to markets, and starts the read loop
 func (r *Reader) Connect(ctx context.Context, markets []model.Market) error {
 	conn, _, err := r.dialer.DialContext(ctx, websocketURL, nil)
 	if err != nil {
@@ -103,7 +105,7 @@ func (r *Reader) Connect(ctx context.Context, markets []model.Market) error {
 	return nil
 }
 
-// Stream returns normalized order books emitted by the reader.
+// Stream returns normalized order books emitted by the reader
 func (r *Reader) Stream() <-chan model.OrderBook {
 	return r.outputCh
 }

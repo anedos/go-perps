@@ -2,7 +2,6 @@ package processor
 
 import (
 	"github.com/anedos/go-perps/internal/model"
-	"github.com/sanity-io/litter"
 	"github.com/shopspring/decimal"
 )
 
@@ -25,7 +24,7 @@ func New(slippageLevels []decimal.Decimal) *Processor {
 
 // Process calculates spread, depth, and slippage for one order book snapshot
 func (p *Processor) Process(orderBook model.OrderBook) model.ProcessedOrderBook {
-	litter.Dump(orderBook)
+	//litter.Dump(orderBook)
 
 	return model.ProcessedOrderBook{
 		Exchange:  orderBook.Exchange,

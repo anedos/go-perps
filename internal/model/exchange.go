@@ -2,26 +2,23 @@ package model
 
 import "fmt"
 
-// Exchange identifies a perpetual futures exchange supported by the system.
+// Exchange identifies a perpetual futures exchange supported by the system
 type Exchange string
 
 const (
-	// ExchangeExtended identifies Extended.
-	ExchangeExtended Exchange = "extended"
-	// ExchangeHyperliquid identifies Hyperliquid.
+	ExchangeExtended    Exchange = "extended"
 	ExchangeHyperliquid Exchange = "hyperliquid"
-	// ExchangeLighter identifies Lighter.
-	ExchangeLighter Exchange = "lighter"
+	ExchangeLighter     Exchange = "lighter"
 )
 
-// AllExchanges lists every exchange known to the domain model.
+// AllExchanges lists every exchange known to the domain model, a convenience var
 var AllExchanges = []Exchange{
 	ExchangeExtended,
 	ExchangeHyperliquid,
 	ExchangeLighter,
 }
 
-// ParseExchange converts a string exchange identifier into an Exchange.
+// ParseExchange converts a string exchange identifier into an Exchange
 func ParseExchange(value string) (Exchange, error) {
 	exchange := Exchange(value)
 
